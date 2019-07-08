@@ -1,0 +1,6 @@
+etark_webapp/settings.py
+
+# Compiled source #
+###################
+*.so
+*.pyc
