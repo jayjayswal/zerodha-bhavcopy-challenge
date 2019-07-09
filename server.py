@@ -2,16 +2,21 @@ import traceback
 import cherrypy
 from controller import EqBhavCopyController
 import json
+import os
 
 class SockSever(object):
     @cherrypy.expose
     def index(self):
-        return "Hello world!"
+        # template = env.get_template('templates/index.html')
+        # return template.render()
+        return open("templates/index.html")
 
     @cherrypy.expose
     def get_top_stocks(self,page_no=None):
         """
         top stocks by name webservice endpoint
+        :param
+            page_no: Page no for pagination
         return:
             json:
                 success response : {"status":1,"data":"--dict of stocks--","count":"--total count of stocks--"}
@@ -33,6 +38,8 @@ class SockSever(object):
     def get_stock_by_name(self,name_to_search=None):
         """
         Search stocks by name webservice endpoint
+        :param
+            name_to_search: name to search
         :return:
             json:
                 success response : {"status":1,"data":"--dict of stocks--"}
@@ -53,6 +60,11 @@ class SockSever(object):
 
 
 
-
+# 'tools.staticdir.dir': "/home/jay/Documents/personal/zerodha-bhavcopy-challenge/assets"
 if __name__ == '__main__':
-    cherrypy.quickstart(SockSever())
+    cherrypy.quickstart(SockSever(),config={
+        '/static':
+            {'tools.staticdir.on': True,
+             'tools.staticdir.dir':  os.path.abspath(os.getcwd())+"/assets"
+             }
+    })

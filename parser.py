@@ -125,7 +125,7 @@ class EqBhavCopyParser():
                          'close': float(row['CLOSE']), 'high': float(row['HIGH']), 'low': float(row['LOW'])}
                 redis_pipeline.hmset(stripped_key, dict(value))
 
-                #Assiming logic of top 10 stock entries must be "Highest positive percentage movement first"
+                #Assuming logic of top 10 stock entries must be "Highest positive percentage movement first"
                 #Using sorted set and putting percentage as score
                 #
                 percentage = round(((value['close'] - value['open']) / value['open']) * 100, 2)
