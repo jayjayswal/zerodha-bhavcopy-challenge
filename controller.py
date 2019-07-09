@@ -71,6 +71,7 @@ class EqBhavCopyController():
 
             keys = redis_conn.scan_iter(match='STOCK:*'+str(name).upper()+'*')
             stacks = []
+            print(type(keys))
             for key in keys:
                 reg = redis_conn.hgetall(key)
                 stacks.append(reg)

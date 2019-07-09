@@ -121,14 +121,16 @@ class EqBhavCopyParser():
             for row in csv_list:
                 #
                 stripped_key = "STOCK:"+row['SC_CODE'].rstrip()+":"+row['SC_NAME'].rstrip()
-                value = {'name': row['SC_NAME'].rstrip(), 'code': float(row['SC_CODE']), 'open': float(row['OPEN']),
+                value = {'name': row['SC_NAME'].rstrip(), 'code': row['SC_CODE'], 'open': float(row['OPEN']),
                          'close': float(row['CLOSE']), 'high': float(row['HIGH']), 'low': float(row['LOW'])}
+                percentage = round(((value['close'] - value['open']) / value['open']) * 100, 2)
+                value['percentage'] = round(percentage, 2)
                 redis_pipeline.hmset(stripped_key, dict(value))
 
                 #Assuming logic of top 10 stock entries must be "Highest positive percentage movement first"
                 #Using sorted set and putting percentage as score
                 #
-                percentage = round(((value['close'] - value['open']) / value['open']) * 100, 2)
+
                 redis_pipeline.zadd("search_sorted",{stripped_key: percentage})
 
             #Storing date for withc bhavcopy has been loaded to redis
