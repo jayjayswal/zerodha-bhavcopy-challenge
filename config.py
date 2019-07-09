@@ -15,7 +15,7 @@ def get_redis_connection():
     """
     res = {"status": 0, "data": ""}
     try:
-        r = redis.Redis(host='localhost', port=6379, db=0)
+        r = redis.StrictRedis(host='localhost',charset="utf-8",decode_responses=True, port=6379, db=0)
         res["status"]=1
         res["data"]=r
     except Exception as e:
