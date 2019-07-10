@@ -88,7 +88,7 @@
                <h2 style="color:#ff5722;">SEARCH STOCKS</h2>
                <br/>
                <div class="input-group mb-3    ">
-                  <input type="text" data-ng-model="search_text" class="form-control" placeholder="Stock's name" aria-describedby="button-addon2">
+                  <input type="text" ng-keypress="checkEnter($event)" data-ng-model="search_text" class="form-control" placeholder="Stock's name" aria-describedby="button-addon2">
                   <div class="input-group-append">
                      <button data-ng-click="getStockByName()" class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
                   </div>

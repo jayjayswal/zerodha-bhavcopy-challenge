@@ -129,6 +129,12 @@ app.controller("form-controller", function($scope,$http) {
         });
     }
 
+    $scope.checkEnter=function(keyEvent) {
+      if (keyEvent.which === 13){
+        $scope.getStockByName()
+      }
+    }
+
     $scope.showError=function(msg){
         alert(msg)
     }
