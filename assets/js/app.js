@@ -9,10 +9,16 @@ app.controller("form-controller", function($scope,$http) {
     $scope.top_stocks=[]
     $scope.search_stocks=[]
 
+    /*
+        Calls when page gets loaded.
+    */
     $scope.setupApp=function(){
         $scope.getTopSocks(0,true)
     }
 
+    /*
+        Get top stacks for provided page number.
+    */
     $scope.getTopSocks=function(pageNumber,firstTime){
         $http({
             method : "GET",
@@ -45,6 +51,9 @@ app.controller("form-controller", function($scope,$http) {
         });
     }
 
+    /*
+        Setup pagination for top stacks.
+    */
     $scope.setupPagination=function(){
         $("#paginations").pagination({
             pageSize: 10,
@@ -62,6 +71,9 @@ app.controller("form-controller", function($scope,$http) {
         });
     }
 
+    /*
+        Search stock by name pattern
+    */
     $scope.getStockByName=function(){
         $http({
             method : "GET",
@@ -89,6 +101,10 @@ app.controller("form-controller", function($scope,$http) {
         });
     }
 
+
+    /*
+        Reload latest bhavcopy to redis.
+    */
     $scope.loadLatestData=function(){
          $http({
             method : "GET",

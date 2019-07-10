@@ -43,8 +43,6 @@ class EqBhavCopyParser():
             link_tag = soup.find(id="ContentPlaceHolder1_btnhylZip")
             res={"status":1,"data":link_tag['href']}
             return res
-
-
         except Exception as e:
             traceback.print_exc()
             res = {"status": 0, "data": "Something went wrong, Kindly try again."}
@@ -126,7 +124,7 @@ class EqBhavCopyParser():
 
             # Open csv file and read it
             csv_list = csv.DictReader(open(csv_path, 'r'))
-            # start redis pipeline,with transaction
+            # start redis pipeline, with transaction
             redis_pipeline = redis_conn.pipeline(transaction=True)
             redis_pipeline.flushdb()
             for row in csv_list:
@@ -140,8 +138,6 @@ class EqBhavCopyParser():
 
                 #Assuming logic of top 10 stock entries must be "Highest positive percentage movement first"
                 #Using sorted set and putting percentage as score
-                #
-
                 redis_pipeline.zadd("search_sorted",{stripped_key: percentage})
 
             #Storing date for withc bhavcopy has been loaded to redis
@@ -150,9 +146,6 @@ class EqBhavCopyParser():
 
             #execute the pipeline
             redis_pipeline.execute()
-
-            #todo
-            #disconnect redis
 
             res["status"] = 1
             res["data"] = "Done."

@@ -21,3 +21,4 @@ def get_redis_connection():
     except Exception as e:
         res["data"]="Redis connection error, Kindly contact administrator"
     return res
+
