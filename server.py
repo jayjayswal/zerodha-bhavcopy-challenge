@@ -77,12 +77,15 @@ class SockSever(object):
         return json.dumps(res)
 
 
-
-# 'tools.staticdir.dir': "/home/jay/Documents/personal/zerodha-bhavcopy-challenge/assets"
-if __name__ == '__main__':
-    cherrypy.quickstart(SockSever(),config={
+config={
+    'global': {
+        'server.socket_host': '0.0.0.0',
+        'server.socket_port': int(os.environ.get('PORT', 5000)),
+    },
         '/static':
             {'tools.staticdir.on': True,
              'tools.staticdir.dir':  os.path.abspath(os.getcwd())+"/assets"
              }
-    })
+    }
+if __name__ == '__main__':
+    cherrypy.quickstart(SockSever(),config=config)
