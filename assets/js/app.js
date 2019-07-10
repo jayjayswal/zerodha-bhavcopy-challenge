@@ -3,10 +3,14 @@ app.controller("form-controller", function($scope,$http) {
 
     $scope.top_stock_url="/get_top_stocks/"
     $scope.search_stock_url="/get_stock_by_name/"
+    $scope.get_latest_stocks="/get_latest_stocks/"
     $scope.search_text=""
+    $scope.eq_bhav_date=""
+    $scope.top_stocks=[]
+    $scope.search_stocks=[]
 
     $scope.setupApp=function(){
-        $scope. getTopSocks(0,true)
+        $scope.getTopSocks(0,true)
     }
 
     $scope.getTopSocks=function(pageNumber,firstTime){
@@ -18,14 +22,19 @@ app.controller("form-controller", function($scope,$http) {
            console.log(response)
            response=response.data
            if(response.status == 1){
+                if(response.data.length==0){
+                    $scope.showError("No data found, Try to load bhavcopy again.");
+                    return;
+                }
                 if(firstTime){
                     $scope.total_rows=response.count
                     $scope.setupPagination()
+                    $scope.eq_bhav_date=response.date
                 }
                 $scope.top_stocks=response.data
            }
            else{
-               alert(response.data)
+               $scope.showError(response.data);
            }
         }, function myError(response) {
            if(response.status == 500){
@@ -62,10 +71,14 @@ app.controller("form-controller", function($scope,$http) {
            console.log(response)
            response=response.data
            if(response.status == 1){
+                if(response.data.length==0){
+                    $scope.showError("No data found, Try again with different query.");
+                    return;
+                }
                 $scope.search_stocks=response.data
            }
            else{
-               alert(response.data)
+               $scope.showError(response.data);
            }
         }, function myError(response) {
            if(response.status == 500){
@@ -76,6 +89,40 @@ app.controller("form-controller", function($scope,$http) {
         });
     }
 
+    $scope.loadLatestData=function(){
+         $http({
+            method : "GET",
+            url : $scope.get_latest_stocks
+        })
+        .then( function mySuccess(response) {
+           console.log(response)
+           response=response.data
+           if(response.status == 1){
+              $scope.showError(response.data);
+              location.reload(true);
+           }
+           else{
+               $scope.showError(response.data);
+           }
+        }, function myError(response) {
+           if(response.status == 500){
+                $scope.serverError()
+           }else if(response.status == 403){
+                $scope.unAuthenticatedRequest()
+           }
+        });
+    }
 
+    $scope.showError=function(msg){
+        alert(msg)
+    }
+
+    $scope.serverError=function(){
+        alert("Server Error, Try again after sometime.")
+    }
+
+    $scope.unAuthenticatedRequest=function(){
+        alert("Unauthenticated Request.")
+    }
 
 });

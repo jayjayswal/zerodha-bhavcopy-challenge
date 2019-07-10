@@ -1,5 +1,6 @@
 import traceback
 from config import get_redis_connection
+from parser import EqBhavCopyParser
 
 
 class EqBhavCopyController():
@@ -38,6 +39,15 @@ class EqBhavCopyController():
             total_count=0
             if page_no==0:
                 total_count=redis_conn.zcount("search_sorted","-inf","+inf")
+                if total_count == 0:
+                    """
+                    If data is not loaded, call parser to load it.
+                    """
+                    res=self.get_latest_stocks()
+                    if res["status"]:
+                        total_count = redis_conn.zcount("search_sorted", "-inf", "+inf")
+                    else:
+                        return res
             start_index=page_no*self.pagination_size
             end_index=start_index+self.pagination_size-1
 
@@ -47,7 +57,8 @@ class EqBhavCopyController():
                 reg = redis_conn.hgetall(key)
                 top_stacks.append(reg)
             print(top_stacks)
-            res["status"],res["data"],res["count"]=1,top_stacks,total_count
+            date=redis_conn.get("latest_date")
+            res["status"],res["data"],res["count"],res["date"]=1,top_stacks,total_count,date
         except Exception as e:
             traceback.print_exc()
             res["data"] = "Something went wrong, Kindly try again."
@@ -77,6 +88,27 @@ class EqBhavCopyController():
                 stacks.append(reg)
             print(stacks)
             res["status"], res["data"] = 1, stacks
+        except Exception as e:
+            traceback.print_exc()
+            res["data"] = "Something went wrong, Kindly try again."
+        return res
+
+    def get_latest_stocks(self):
+        """
+        Calls parser to fetch new bhav copy zip and load it to redis
+        :param
+            name: name to search
+        :return:
+            success response : {"status":1,"data":"--dict of stocks--"}
+            fail response : {"status":0,"data":"--error message--"}
+        """
+        res = {"status": 0, "data": ""}
+        try:
+            parser=EqBhavCopyParser()
+            res=parser.load_zip_to_redis()
+            print("==================")
+            print(res)
+            return res
         except Exception as e:
             traceback.print_exc()
             res["data"] = "Something went wrong, Kindly try again."

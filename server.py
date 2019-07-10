@@ -27,7 +27,6 @@ class SockSever(object):
             page_no=0 if page_no is None else int(page_no)
             con=EqBhavCopyController()
             res=con.get_top_stocks(page_no)
-            print("============================")
             print(res)
         except Exception as e:
             traceback.print_exc()
@@ -53,6 +52,25 @@ class SockSever(object):
             else:
                 con = EqBhavCopyController()
                 res = con.get_stock_by_name(name_to_search.strip())
+        except Exception as e:
+            traceback.print_exc()
+            res["data"] = "Something went wrong, Kindly try again."
+        return json.dumps(res)
+
+    @cherrypy.expose
+    def get_latest_stocks(self):
+        """
+        Calls parser to fetch new bhav copy zip and load it to redis
+        :return:
+            json:
+                success response : {"status":1,"data":"--success message--"}
+                fail response : {"status":0,"data":"--error message--"}
+        """
+
+        res = {"status": 0, "data": ""}
+        try:
+            con = EqBhavCopyController()
+            res = con.get_latest_stocks()
         except Exception as e:
             traceback.print_exc()
             res["data"] = "Something went wrong, Kindly try again."

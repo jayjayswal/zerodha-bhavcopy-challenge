@@ -6,6 +6,7 @@ import zipfile
 import requests
 import io
 import csv
+from bs4 import BeautifulSoup
 
 class EqBhavCopyParser():
     """
@@ -36,7 +37,11 @@ class EqBhavCopyParser():
             https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx
             Parsing this URL with beautiful soap library.
             """
-            res={"status":1,"data":"https://www.bseindia.com/download/BhavCopy/Equity/EQ080719_CSV.ZIP"}
+            url="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx"
+            r = requests.get(url)
+            soup = BeautifulSoup(r.text)
+            link_tag = soup.find(id="ContentPlaceHolder1_btnhylZip")
+            res={"status":1,"data":link_tag['href']}
             return res
 
 
@@ -105,13 +110,19 @@ class EqBhavCopyParser():
                 return csv_file_res
             csv_path=csv_file_res["data"]
             csv_file_name=csv_file_res["name"]
-
+            csv_file_date=csv_file_name[2:4] + "-" + csv_file_name[4:6] + "-20" + csv_file_name[6:8]
 
             # Get redis connection
             redis_conn_res=get_redis_connection()
             if not redis_conn_res["status"]:
                 return redis_conn_res
             redis_conn = redis_conn_res["data"]
+
+            loaded_data_date=redis_conn.get("latest_date")
+            if csv_file_date==loaded_data_date:
+                res["data"]="Database already have latest data."
+                return res
+
 
             # Open csv file and read it
             csv_list = csv.DictReader(open(csv_path, 'r'))
@@ -135,7 +146,7 @@ class EqBhavCopyParser():
 
             #Storing date for withc bhavcopy has been loaded to redis
             print("latest_date", csv_file_name[2:4] + "-" + csv_file_name[4:6] + "-20" + csv_file_name[6:8])
-            redis_pipeline.set("latest_date", csv_file_name[2:4] + "-" + csv_file_name[4:6] + "-20" + csv_file_name[6:8])
+            redis_pipeline.set("latest_date", csv_file_date)
 
             #execute the pipeline
             redis_pipeline.execute()
@@ -148,7 +159,5 @@ class EqBhavCopyParser():
         except Exception as e:
             traceback.print_exc()
             res["data"] = "Something went wrong, Kindly try again."
-            return res
+        return res
 
-a=EqBhavCopyParser()
-a.load_zip_to_redis()
